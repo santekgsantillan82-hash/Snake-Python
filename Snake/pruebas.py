@@ -14,7 +14,14 @@ jugador =[
     pg.Rect(pos_jug.x, pos_jug.y, 30, 15),
     pg.Rect(pos_jug.x+20, pos_jug.y, 30, 15),
     pg.Rect(pos_jug.x+40, pos_jug.y, 30, 15),
-    pg.Rect(pos_jug.x+60, pos_jug.y, 30, 15)
+    pg.Rect(pos_jug.x+60, pos_jug.y, 30, 15),
+    pg.Rect(pos_jug.x+80, pos_jug.y, 30, 15),
+    pg.Rect(pos_jug.x+100, pos_jug.y, 30, 15),
+    pg.Rect(pos_jug.x+120, pos_jug.y, 30, 15),
+    pg.Rect(pos_jug.x+140, pos_jug.y, 30, 15),
+    pg.Rect(pos_jug.x+160, pos_jug.y, 30, 15),
+    pg.Rect(pos_jug.x+180, pos_jug.y, 30, 15),
+    pg.Rect(pos_jug.x+200, pos_jug.y, 30, 15)
 ]
 
 pared1 = pg.Rect(0, 0, 20, 480)
@@ -30,14 +37,23 @@ while corriendo:
     pantallita.fill("red")
 
     for i in jugador:
-        pg.draw.ellipse(pantallita, "black", (i.x, i.y, 30, 15))
+        if jugador[0]==i:
+            pg.draw.ellipse(pantallita, "black", (i.x, i.y, 30, 20))
+        else:
+            pg.draw.ellipse(pantallita, "black", (i.x, i.y, 30, 15))
     
     pg.draw.rect(pantallita, "black", pared1)
     pg.draw.rect(pantallita, "black", pared2)
     pg.draw.rect(pantallita, "black", pared3)
     pg.draw.rect(pantallita, "black", pared4)
 
+    pos=[]
 
+    for i in jugador:
+        pos.append(i.topleft)
+
+    for i in range(len(jugador)-1, 0, -1):
+        jugador[i].topleft = jugador[i-1].topleft
 
 
     jugador[0].move_ip(movx, movy)
@@ -48,21 +64,21 @@ while corriendo:
 
     if iniciado:
         if controles[pg.K_w]:
-           movy= -5
+           movy= -15
            movx= 0
         if controles[pg.K_s]:
-           movy= 5
+           movy= 15
            movx= 0
         if controles[pg.K_a]:
-           movx= -5
+           movx= -15
            movy= 0
         if controles[pg.K_d]:
-           movx= 5
+           movx= 15
            movy= 0
 
 
     pg.display.flip()
 
-    dt = tiempo.tick(60) / 1000
+    dt = tiempo.tick(10) / 1000
 
 pg.quit()
