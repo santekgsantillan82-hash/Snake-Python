@@ -1,25 +1,36 @@
 import pygame as pg
+import random as rd
 
 pg.init()
 pantallita = pg.display.set_mode((720, 480))
 tiempo = pg.time.Clock()
+pos_jug = pg.Vector2(pantallita.get_width()/2, pantallita.get_height()/2)
+fuente = pg.font.Font(None, 40)
+
 corriendo = True
+iniciado= False
+Menu= True
+estaMan = False
 dt = 0
 movy = 0
 movx = 0
 celd= 20
-iniciado= False
-fuente = pg.font.Font(None, 40)
+
 texto1= fuente.render("Play", True, "white")
 texto2= fuente.render("Opciones", True, "white")
 texto3= fuente.render("Exit", True, "white")
 texto4= fuente.render("Presiona La Tecla Espacio para inicia", True, "black")
-Menu= True
-pos_jug = pg.Vector2(pantallita.get_width()/2, pantallita.get_height()/2)
+
+def GenMan():
+    manXN = rd.randrange(0, 720, 20)
+    manYN = rd.randrange(0, 480, 20)
+    manza = pg.Rect(manX, manY, 20, 20)
+    pg.draw.rect(pantallita, "red", manza)
+
 
 jugador =[
     pg.Rect(pos_jug.x+(i*30), pos_jug.y, 20, 10)
-    for i in range(11)
+    for i in range(3)
 ]
 
 paredes= [
@@ -28,6 +39,11 @@ paredes= [
     pg.Rect(0, 0, 720, 20),
     pg.Rect(0, 460, 720, 20),
 ]
+
+manX = rd.randrange(0, 720, 20)
+manY = rd.randrange(0, 480, 20)
+
+manza = pg.Rect(manX, manY, 15, 15)
 
 while corriendo: 
     for event in pg.event.get():
@@ -58,7 +74,6 @@ while corriendo:
                 Menu = False
 
     else:
-
         controles = pg.key.get_pressed()
         if controles[pg.K_SPACE]:
             iniciado = True
@@ -98,14 +113,24 @@ while corriendo:
         for i in paredes:
             pg.draw.rect(pantallita, (0, 170, 228), i)
 
+        pg.draw.rect(pantallita, "red", manza)
+
+        if jugador[0].colliderect(manza):
+            manza.update(manX, manY, 20, 20)
+
+
         if jugador[0].colliderect(paredes[0]):
             jugador[0].left = paredes[0].right
+            Menu= True
         if jugador[0].colliderect(paredes[1]):
             jugador[0].right = paredes[1].left
+            Menu= True
         if jugador[0].colliderect(paredes[2]):
             jugador[0].top = paredes[2].bottom
+            Menu= True
         if jugador[0].colliderect(paredes[3]):
             jugador[0].bottom = paredes[3].top
+            Menu= True
 
 
 
