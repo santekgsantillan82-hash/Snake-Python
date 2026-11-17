@@ -6,12 +6,14 @@ class Juego():
     def __init__(self, pantalla):
         self.pantalla = pantalla
         self.celd = 20
+        self.tamX = self.pantalla.get_width()
+        self.tamY = self.pantalla.get_height()
 
         self.paredes = [
-            pg.Rect(0, 0, 20, 480),
-            pg.Rect(700, 0, 20, 480),
-            pg.Rect(0, 0, 720, 20),
-            pg.Rect(0, 460, 720, 20),
+            pg.Rect(0, 0, 20, self.tamY),
+            pg.Rect(self.tamX -20, 0, 20, self.tamY),
+            pg.Rect(0, 0, self.tamX, 20),
+            pg.Rect(0, self.tamY -20, self.tamX, 20),
         ]
 
         self.fuente = pg.font.Font(None, 35)
@@ -29,14 +31,12 @@ class Juego():
         self.pos_jug = pg.Vector2(self.pantalla.get_width() / 2, self.pantalla.get_height() / 2)
 
         self.jugador = [
-            pg.Rect(self.pos_jug.x + (i * 30), self.pos_jug.y, 20, 10)
+            pg.Rect(self.pos_jug.x + (i * 20), self.pos_jug.y, 20, 10)
             for i in range(3)
         ]
 
-        self.manX = rd.randrange(20, 700, 20)
-        self.manY = rd.randrange(20, 460, 20)
-
-        self.manza = pg.Rect(self.manX, self.manY, 15, 15)
+        self.manza = pg.Rect(0, 0, 20, 20)
+        self.NewManza()
 
         self.text2 = self.fuente2.render(f"La cantidad de basura comida es: {self.cantBas}", True, "black" )
 
@@ -96,11 +96,15 @@ class Juego():
         return False
 
     def NewManza(self):
-        self.manXN = rd.randrange(20, 700, 20)
-        self.manYN = rd.randrange(20, 460, 20)
+        while True:
 
-        self.manza.update(self.manXN, self.manYN, 20, 20)
+            self.manXN = rd.randrange(20, self.tamX -20, 20)
+            self.manYN = rd.randrange(20, self.tamY -20, 20)
 
+            self.manza.update(self.manXN, self.manYN, 20, 20)
+
+            if self.manza.collidelist(self.jugador) == -1:
+                break
 
     def dibujar(self):
         self.pantalla.fill((65, 207, 65))
