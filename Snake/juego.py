@@ -1,7 +1,7 @@
 
 import pygame as pg
 import random as rd
-
+from enco import recurso
 class Juego():
     def __init__(self, pantalla):
         self.pantalla = pantalla
@@ -15,16 +15,31 @@ class Juego():
             pg.Rect(0, 0, self.tamX, 20),
             pg.Rect(0, self.tamY -20, self.tamX, 20),
         ]
+        self.basuras = [
+            "img/bolsa_plastico.png",
+            "img/bollo_papel.png",
+            "img/refresco.png",
+            "img/basura.png"
+        ]
+        self.imgBas= []
+        for i in self.basuras:
+            img = pg.image.load(recurso(i)).convert_alpha()
+            img = pg.transform.scale(img, (20, 20))
+            self.imgBas.append(img)
 
-        self.fuente = pg.font.Font(None, 35)
-        self.fuente2 = pg.font.Font(None, 30)
-        self.text1 = self.fuente.render("Presiona La Tecla Espacio para inicia", True, "black")
+
+
+        self.fuente = pg.font.Font(None, max(18, self.tamX// 15))
+        self.fuente2 = pg.font.Font(None, max(22, self.tamX// 13))
+        self.text1 = self.fuente.render("Presiona al tecla ESPACIO para inicia", True, "white")
 
         self.reInicio()
 
     def reInicio(self):
         self.movx = 0
         self.movy = 0
+        self.ultX = 0
+        self.ultY = 0
         self.cantBas = 0
         self.iniciado = False
 
@@ -38,30 +53,32 @@ class Juego():
         self.manza = pg.Rect(0, 0, 20, 20)
         self.NewManza()
 
-        self.text2 = self.fuente2.render(f"La cantidad de basura comida es: {self.cantBas}", True, "black" )
+        self.actuCont()
 
     def controles(self):
         controles = pg.key.get_pressed()
 
-        if controles[pg.K_SPACE]:
+        if controles[pg.K_SPACE] and not self.iniciado:
             self.iniciado = True
             self.movx = -self.celd
             self.movy = 0
+            self.ultX = self.movx
+            self.ultY = self.movy
 
         if self.iniciado:
-            if controles[pg.K_w]:
+            if controles[pg.K_w] and self.ultY != self.celd:
                 self.movy = -self.celd
                 self.movx = 0
 
-            if controles[pg.K_s]:
+            if controles[pg.K_s] and self.ultY != -self.celd:
                 self.movy = self.celd
                 self.movx = 0
 
-            if controles[pg.K_a]:
+            if controles[pg.K_a] and self.ultX != self.celd:
                 self.movx = -self.celd
                 self.movy = 0
 
-            if controles[pg.K_d]:
+            if controles[pg.K_d] and self.ultX != -self.celd:
                 self.movx = self.celd
                 self.movy = 0
 
@@ -70,6 +87,9 @@ class Juego():
             self.jugador[i].topleft = self.jugador[i-1].topleft
 
         self.jugador[0].move_ip(self.movx, self.movy)
+
+        self.ultY = self.movy
+        self.ultX = self.movx
 
     def colisiones(self):
         for i in self.jugador[1:]:
@@ -106,36 +126,55 @@ class Juego():
             if self.manza.collidelist(self.jugador) == -1:
                 break
 
-    def dibujar(self):
-        self.pantalla.fill((65, 207, 65))
+        self.basura = rd.choice(self.imgBas)
+        
+    def ajusText(self, superficie):
+        anchMax = self.tamX -40
+        if superficie.get_width() > anchMax:
+            escale= anchMax / superficie.get_width()
+            newTam = (int(superficie.get_width() * escale), int(superficie.get_height() * escale)) 
+            superficie = pg.transform.smoothscale(superficie, newTam)
+        return superficie
 
+    def actuCont(self):
+        self.text2 = self.ajusText(self.fuente2.render(f"Basura comida: {self.cantBas}", True, "white"))
+
+    def dibujar(self):
+        self.pantalla.fill((24, 43, 39))
+
+        for x in range(0, self.tamX, 20):
+            pg.draw.line(self.pantalla, (34, 57, 49), (x, 0), (x, self.tamY))
+
+        for y in range(0, self.tamY, 20):
+            pg.draw.line(self.pantalla, (34, 57, 49), (0, y), (self.tamX, y))
 
         for i in self.jugador:
             if self.jugador[0] == i:
                 pg.draw.ellipse(
                     self.pantalla,
-                    (179, 169, 97),
+                    (213, 240, 165),
                     (i.x, i.y, 20, 20)
                 )
 
             else:
                 pg.draw.rect(
                     self.pantalla,
-                    (179, 169, 97),
+                    (168, 217, 108),
                     (i.x, i.y, 20, 20)
                 )
 
         for i in self.paredes:
             pg.draw.rect(
                 self.pantalla,
-                (70, 89, 70),
+                (52, 74, 64),
                 i
             )
 
-        pg.draw.rect(self.pantalla, "red", self.manza)
+        self.pantalla.blit(self.basura, (self.manza.x, self.manza.y))
 
         if not self.iniciado:
-            self.pantalla.blit(self.text1, (100, 90))
+            rect = self.text1.get_rect(center=(self.tamX // 2, self.tamY // 2 - 40))
+            self.pantalla.blit(self.text1, rect)
         else:
             self.pantalla.blit(self.text2, (0, 0))
 
@@ -152,7 +191,7 @@ class Juego():
             if self.jugador[0].colliderect(self.manza):
                 self.jugador.append(pg.Rect(0, 0, 20, 20))
                 self.cantBas += 1
-                self.text2 = self.fuente2.render(f"La cantidad de basura comida es: {self.cantBas}", True, "black" )
+                self.actuCont()
                 self.NewManza()
 
         return False

@@ -4,9 +4,9 @@ from menu import Menu
 from juego import Juego
 
 Dificultades={
-    "fac": {"tam": (240, 360), "vel": 10},
-    "nor": {"tam": (360, 480), "vel": 15},
-    "dif": {"tam": (480, 600), "vel": 20}
+    "fac": {"tam": (240, 360), "vel": 10, "fue": "fuente3"},
+    "nor": {"tam": (360, 480), "vel": 10, "fue": "fuente4"},
+    "dif": {"tam": (480, 600), "vel": 15, "fue": "fuente5"},
 }
 
 pg.init()
@@ -17,13 +17,15 @@ pg.display.set_caption("EcoSnake")
 corriendo = True
 enMenu = True
 selMenu = False
-vel = 10
+vel = 60
 menu = Menu()
 juego = Juego(pantallita)
 
 
 while corriendo:
     click = False
+    control = pg.key.get_pressed()
+
     for event in pg.event.get():
         if event.type == pg.QUIT:
             corriendo = False
@@ -36,6 +38,8 @@ while corriendo:
             opcion = menu.actualizar(click)
             if opcion == "play":
                 selMenu = True
+            if opcion == "exit":
+                pg.quit()
         else: 
             menu.selDif(pantallita)
             opcion = menu.actualizar(click)
@@ -50,6 +54,12 @@ while corriendo:
     else:
         if juego.actualizar():
             pg.time.wait(500)
+
+        if control[pg.K_ESCAPE]:
+            enMenu= True
+            selMenu = True
+            pantallita = pg.display.set_mode((720, 480))
+            vel = 10
 
         juego.dibujar()
 
